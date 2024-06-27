@@ -6,28 +6,29 @@ class TfIdfCalculator:
         self.inverted_index = inverted_index
         self.idf = defaultdict(float)
     
-    def compute_idf(self, n_docs):
+    def compute_idf(self, n_docs:int):
         for term, df in self.inverted_index.doc_freq.items():
             self.idf[term] = math.log(n_docs / ( df))
     
-    def compute_tfidf(self, docs):
+    def compute_tfidf(self, docs:list)->list:
         tfidf_docs = []
         self.compute_idf(len(docs))
         
         for doc_id, doc in enumerate(docs):
             tfidf = {}
+            # for each term inside each document find the weight(tf*idf)
             for term in doc:
-                tf = self.inverted_index.term_freq[term][doc_id] / len(doc)
+                tf = self.inverted_index.term_freq[term][doc_id] / self.inverted_index.max_freq[doc_id]
                 tfidf[term] = tf * self.idf[term]
             tfidf_docs.append(tfidf)
         
         return tfidf_docs
     
     def retrieve_documents(self, query, tfidf_docs):
-        query_tf = Counter(query)
+        query_tf = Counter(query) # returns a dictionary that contains distinct query terms with their frequencies
         query_tfidf = {}
         for term, tf_val in query_tf.items():
-            query_tfidf[term] = tf_val / len(query) * self.idf.get(term, 0)
+            query_tfidf[term] = tf_val / query_tf[max(query_tf, key=query_tf.get)] * self.idf.get(term, 0)
         
         similarities = []
         for idx, doc_tfidf in enumerate(tfidf_docs):

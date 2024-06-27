@@ -16,8 +16,10 @@ def welcome_page():
 ║     An Information Retrieval System using          ║
 ║      Inverted Index and Vector Space Model         ║
 ║                                                    ║
-║         Created by:                                ║
-║                                                    ║
+║         Created by:   Biruk Tesfaye                ║
+║                       Yabets Zekaryas              ║
+║                       Elyas Damenu                 ║
+║                       Mahlet Demeke                ║
 ╚════════════════════════════════════════════════════╝
 """
     print(welcome_text)
@@ -31,15 +33,15 @@ def get_query():
 welcome_page()
 def main():
     
-    corpus_dir = 'corpus'
+    corpus_dir = "corpus"
     documents = []
     doc_name = defaultdict(int)
     idx = 0
-    for filename in os.listdir(corpus_dir):
+    for filename in os.listdir('corpus'):
         if filename.endswith('.txt'):
             with open(os.path.join(corpus_dir, filename), 'r', encoding='utf-8') as file:
-                doc_name[idx] = filename[:len(filename) - 4]
-                documents.append(file.read())
+                doc_name[idx] = filename[:len(filename) - 4] # Extracts the document name without the .txt extension.
+                documents.append(file.read()) # Reads the entire content of the file and appends it to the documents list.
                 idx += 1
 
     processor = DocumentProcessor()
@@ -53,12 +55,16 @@ def main():
 
     query = get_query()
     preprocessed_query = processor.preprocess(query)
-    results = tfidf_calculator.retrieve_documents(preprocessed_query, tfidf_docs)
-    if len(results) == 0:
-        print('There is no documents that contain your query')
+    if not preprocessed_query:
+        print("You cann't search a stop word!")
     else:
-        for idx, sim in results:
-            print(f"{doc_name[idx]}: (Similarity: {sim:.4f})")
-    print('-----------------------------------------------------')
+        print(preprocessed_query)
+        results = tfidf_calculator.retrieve_documents(preprocessed_query, tfidf_docs)
+        if len(results) == 0:
+            print('There is no documents that contain your query')
+        else:
+            for idx, sim in results:
+                print(f"{doc_name[idx]}: (Similarity: {sim:.4f})")
+        print('-----------------------------------------------------')
     main()
 main()
